@@ -11,7 +11,7 @@
           ".env",
           "server.js"
         ],
-        "maxDuration": 10 // Max duration badha di hai, taaki DB connection timeout na ho
+        "maxDuration": 10
       }
     }
   ],
@@ -26,23 +26,3 @@
     }
   ]
 }
-```
-* **Kyunki:** Serverless environment mein, Express ko `db/db.js` aur `routes/orderRoutes.js` jaisi files ko load karne ki zarurat hoti hai. **`"includeFiles"`** Vercel ko batata hai ki deploy karte samay in files ko bhi package mein shamil karein.
-
----
-
-## 2. `backend/server.js` (Final Route Check)
-
-Aapne pichle jabaon mein yeh badlav kar liya hai, lekin **ek baar aur check karein** ki `app.use('/orders', orderRoutes)` ko hata kar **`app.use('/', orderRoutes)`** set ho chuka ho.
-
-**Theek kiya hua code (Critical line):**
-
-```javascript
-// ... (Your server.js content)
-
-// Order Routes
-const orderRoutes = require('./routes/orderRoutes'); 
-app.use('/', orderRoutes); // <--- Yahi line honi chahiye
-
-// CRITICAL: Express app ko export karna zaroori hai
-module.exports = app;

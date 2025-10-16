@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 // .env file se variables load karne ke liye zaroori
 require('dotenv').config(); 
-const connectDB = require('./db/db'); // Assuming this path is correct
+const connectDB = require('./db/db'); 
 
 const app = express();
 
@@ -45,14 +45,20 @@ app.use(cors({
 
 app.use(express.json()); 
 
+// 🚀 NEW CRITICAL ROUTE: Root Path Handler
+// Yeh '/' path ko handle karega aur 'Cannot GET /' error ko theek karega
+app.get('/', (req, res) => {
+    res.status(200).send('Order Tracking System Backend is fully operational and healthy!');
+});
+
 // Test Route
 app.get('/hello', (req, res) => {
     res.send('Order Tracking Backend is running!');
 });
 
-// Order Routes (CRITICAL: /api path Vercel khud jodega, isliye yahan sirf /orders)
-const orderRoutes = require('./routes/orderRoutes'); // Assuming this path is correct
+// Order Routes
+const orderRoutes = require('./routes/orderRoutes'); 
 app.use('/orders', orderRoutes);
 
-// CRITICAL: Express app ko export karna zaroori hai (app.listen() hata diya gaya hai)
+// CRITICAL: Express app ko export karna zaroori hai
 module.exports = app;

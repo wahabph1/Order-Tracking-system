@@ -1,20 +1,45 @@
-// Backend/db/db.js
+// backend/db/db.js
+
 const mongoose = require('mongoose');
 
-// Apne Local MongoDB ka URL use karein
-// (Agar aapne port 27017 par 'order_tracker' naam ka database nahi banaya hai, toh yeh use karein)
-// const uri = 'mongodb://localhost:27017/order_tracker'; 
-const uri = 'mongodb+srv://aw599822:xCDMNmoMGLFuy8sU@cluster0.pujyprm.mongodb.net/'; 
+// URI ko process.env se fetch karein
+const uri = process.env.MONGO_URI; 
+
+// Connection Cache Variable for Serverless
+let cached = global.mongoose;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 const connectDB = async () => {
-  try {
-    await mongoose.connect(uri);
-    console.log('MongoDB connected successfully locally!');
-  } catch (error) {
-    console.error('MongoDB connection failed:', error.message);
-    // Agar connection fail ho, toh application exit kar do
-    process.exit(1); 
-  }
+    if (cached.conn) {
+        console.log('=> Using existing database connection (Serverless Cache).');
+        return cached.conn;
+    }
+    
+    if (!cached.promise) {
+        if (!uri) {
+             throw new Error('MONGO_URI is not defined in environment variables.');
+        }
+
+        const opts = {
+            bufferCommands: false, // Serverless mein commands ko buffer karna off rakhte hain
+        };
+
+        cached.promise = mongoose.connect(uri, opts).then(mongoose => {
+            return mongoose;
+        });
+    }
+    
+    try {
+        cached.conn = await cached.promise;
+    } catch (error) {
+        cached.promise = null;
+        console.error('MongoDB connection failed:', error.message);
+        process.exit(1); 
+    }
+
+    return cached.conn;
 };
 
 module.exports = connectDB;

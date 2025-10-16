@@ -45,8 +45,7 @@ app.use(cors({
 
 app.use(express.json()); 
 
-// 🚀 NEW CRITICAL ROUTE: Root Path Handler
-// Yeh '/' path ko handle karega aur 'Cannot GET /' error ko theek karega
+// 🚀 ROOT PATH HANDLER (For checking server health)
 app.get('/', (req, res) => {
     res.status(200).send('Order Tracking System Backend is fully operational and healthy!');
 });
@@ -58,7 +57,9 @@ app.get('/hello', (req, res) => {
 
 // Order Routes
 const orderRoutes = require('./routes/orderRoutes'); 
-app.use('/orders', orderRoutes);
+// 🔑 FINAL FIX: /orders path ko Express ke root par mount karein
+// Taa ki Vercel se aane wala '/orders' request sahi tarah se router tak pahunche.
+app.use('/', orderRoutes); 
 
 // CRITICAL: Express app ko export karna zaroori hai
 module.exports = app;

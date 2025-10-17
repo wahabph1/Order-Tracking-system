@@ -6,14 +6,17 @@ const connectDB = require('./db/db');
 
 const app = express();
 
-// Middleware: Database Connection Management
-app.use(async (req, res, next) => {
-    await connectDB(); 
-    next();
-});
+// ***************************************************************
+// 🔑 CRITICAL FIX: DATABASE CONNECTION KO SIRF EK BAAR KARNA HAI
+// Yeh async call serverless function ke initialize hote hi chalega.
+// Isse har request par connection banane ki zaroorat khatm.
+connectDB(); 
+// ***************************************************************
+
+// NOTE: Aapka puraana app.use(async (req, res, next) => { ... }) code yahan se hat chuka hai.
 
 // ***************************************************************
-// CORS Configuration 
+// CORS Configuration (Updated URL)
 // ***************************************************************
 const allowedOrigins = [
     'http://localhost:3000', 
@@ -50,7 +53,7 @@ app.get('/hello', (req, res) => {
 
 // Order Routes
 const orderRoutes = require('./routes/orderRoutes'); 
-// 🔑 CRITICAL FIX: Express ko batao ki /orders request ko root '/' ki tarah treat kare.
+// CRITICAL FIX: Express ko batao ki /orders request ko root '/' ki tarah treat kare.
 app.use('/', orderRoutes); 
 
 // CRITICAL: Express app ko export karna zaroori hai

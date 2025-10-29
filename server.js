@@ -19,13 +19,27 @@ connectDB();
 // CORS Configuration (Updated URL)
 // ***************************************************************
 const allowedOrigins = [
-    'http://localhost:3000', 
-    'https://order-tracking-frontend.vercel.app', 
-    // Aapka latest deployed backend URL
-    'https://order-tracking-system-np42.vercel.app' 
+    'http://localhost:3000',
+    'https://order-tracking-frontend.vercel.app',
+    // Aapka latest deployed backend/frontend URLs
+    'https://order-tracking-system-np42.vercel.app',
+    'https://order-f.vercel.app'
 ];
 
 app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Not allowed by CORS for origin: ${origin}`));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+}));
+// Preflight ko handle karo (DELETE, PUT ke liye zaroori)
+app.options('*', cors({
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -53,8 +67,8 @@ app.get('/hello', (req, res) => {
 
 // Order Routes
 const orderRoutes = require('./routes/orderRoutes'); 
-// CRITICAL FIX: Express ko batao ki /orders request ko root '/' ki tarah treat kare.
-app.use('/', orderRoutes); 
+// API ko sahi base path par mount karo
+app.use('/api/orders', orderRoutes);
 
 // CRITICAL: Express app ko export karna zaroori hai
 module.exports = app;

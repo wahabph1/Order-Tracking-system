@@ -16,7 +16,15 @@ const MONGODB_URI = typeof __mongo_uri !== 'undefined' ? __mongo_uri : 'mongodb:
 // ==========================================================
 // 2. MIDDLEWARE
 // ==========================================================
-app.use(cors()); 
+// CORS: allow frontend origin and handle preflight
+const corsOptions = {
+    origin: 'https://order-f.vercel.app',
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization'],
+    credentials: true,
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json()); 
 
 // ==========================================================
